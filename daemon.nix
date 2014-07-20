@@ -4,22 +4,13 @@ with lib;
 
 let
 
-  scriptFile = pkgs.writeText "daemon.sh" ''
+  myDaemon = pkgs.writeScript "daemon.sh" ''
     #!${pkgs.bash}/bin/bash
     while true; do
-      date >> "${config.outFile}"
+      date >> "${config.services.mydaemon.outFile}"
       sleep 5
     done
   '';
-
-  myDaemon = pkgs.stdenv.mkDerivation rec {
-    name = "my-daemon-0.1.0";
-    builder = ''
-      mkdir -p $out/bin
-      cp ${scriptFile} $out/bin/daemon
-      chmod +x $out/bin/daemon
-    '';
-  };
 
 in
 
@@ -38,8 +29,8 @@ in
       };
 
       outFile = mkOption {
-        type = types.path;
-        default = /var/my_daemon.out;
+        type = types.str;
+        default = "/var/my_daemon.out";
         description = "Where the daemon will write its output to";
       };
 
@@ -65,11 +56,11 @@ in
 
       wantedBy = [ "multi-user.target" ];
 
-      serviceConfig.ExecStart = "${myDaemon}/bin/daemon";
+      serviceConfig.ExecStart = "${myDaemon}";
     };
 
     services.cron.systemCronJobs = optional config.services.mydaemon.enable
-      "${config.services.mydaemon.period} root rm ${config.services.mydaemon.outFile}";
+      "${config.services.mydaemon.cleanupPeriod} root rm ${config.services.mydaemon.outFile}";
 
   };
 
