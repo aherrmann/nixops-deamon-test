@@ -43,6 +43,12 @@ in
         description = "Where the daemon will write its output to";
       };
 
+      cleanupPeriod = mkOption {
+        type = types.str;
+        default = "*/5 * * * *";
+        description = "When to remove the output file. (Crontab syntax)";
+      };
+
     };
 
   };
@@ -61,6 +67,9 @@ in
 
       serviceConfig.ExecStart = "${myDaemon}/bin/daemon";
     };
+
+    services.cron.systemCronJobs = optional config.services.mydaemon.enable
+      "${config.services.mydaemon.period} root rm ${config.services.mydaemon.outFile}";
 
   };
 
