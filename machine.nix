@@ -6,18 +6,13 @@
 
     with pkgs.lib;
 
-    let
-
-      mydaemon = import ./daemon.nix { };
-
-    in
-
     {
+      imports = [ ./daemon.nix ];
+
       # Daemon
-      systemd.services.mydaemon = mydaemon;
       services.mydaemon = {
         enable = true;
-        outFile = /var/mydaemon.out;
+        outFile = "/var/mydaemon.out";
       };
     };
 }
