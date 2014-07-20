@@ -29,7 +29,7 @@ in
 
   options = {
 
-    services.mydaemon {
+    services.mydaemon = {
 
       enable = mkOption {
         type = types.bool;
